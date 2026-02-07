@@ -1,9 +1,7 @@
-# Island Upgrade System Configuration
-# Bu dosyayı düzenleyerek tüm yükseltme ayarlarını değiştirebilirsiniz
+# Island Upgrade System v2.0 - SQLite Edition
 
 # Ada Sınırı Yükseltmeleri
 border:
-  enabled: true
   levels:
     1:
       size: 50
@@ -20,31 +18,28 @@ border:
 
 # Üye Sayısı Yükseltmeleri
 member:
-  enabled: true
-  base-limit: 3
   levels:
     1:
-      limit: 3
+      limit: 4
       cost: 0
     2:
-      limit: 5
+      limit: 6
       cost: 10000
     3:
-      limit: 7
+      limit: 8
       cost: 20000
     4:
-      limit: 9
+      limit: 10
       cost: 40000
     5:
-      limit: 11
+      limit: 12
       cost: 80000
     6:
-      limit: 13
+      limit: 15
       cost: 160000
 
 # Piston Limiti Yükseltmeleri
 piston:
-  enabled: true
   levels:
     1:
       limit: 250
@@ -79,28 +74,11 @@ piston:
 
 # Mesajlar
 messages:
-  prefix: '&8[&6Ada Yükseltme&8]&r '
+  prefix: '&8[&6Ada&8]&r '
   no-island: '&cBir adaya sahip değilsiniz!'
-  no-permission: '&cBunu yapmak için yetkiniz yok!'
-  not-owner: '&cBunu sadece ada sahibi yapabilir!'
-  insufficient-funds: '&cYetersiz bakiye! Gereken: &6{cost} ₺'
-  max-level: '&cBu yükseltme zaten maksimum seviyede!'
-  upgrade-success: '&aYükseltme başarılı! &7Yeni seviye: &b{level}'
-  reload-success: '&aYapılandırma başarıyla yeniden yüklendi!'
-
-# Menü ayarları
-menu:
-  auto-refresh: true      # Yükseltme sonrası menüyü otomatik yenile
-  refresh-delay: 10       # Yenileme gecikmesi (tick, 20 tick = 1 saniye)
-
-# Menü ayarları
-menu:
-  auto-refresh: true  # Yükseltme sonrası menüyü otomatik yenile
-  refresh-delay: 5    # Yenileme gecikmesi (tick cinsinden, 20 tick = 1 saniye)
-  
-# Placeholder ayarları
-placeholders:
-  max-level-text: '&a&l✓ Maksimum Seviye'
-  can-upgrade-text: '&e&l▸ Yükseltmek için tıkla!'
-  cant-upgrade-text: '&c&l✗ Yetersiz bakiye!'
-  upgrade-format: '&7{current} &8→ &a{next}'
+  no-permission: '&cYetkiniz yok!'
+  not-owner: '&cSadece ada sahibi yapabilir!'
+  insufficient-funds: '&cYetersiz bakiye! &7Gereken: &6{cost}₺'
+  max-level: '&cMaksimum seviye!'
+  upgrade-success: '&aYükseltme başarılı! &7Seviye: &b{level}'
+  reload-success: '&aConfig yenilendi!'

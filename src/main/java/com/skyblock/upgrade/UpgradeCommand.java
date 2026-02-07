@@ -20,258 +20,200 @@ public class UpgradeCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player)) {
-            sender.sendMessage("§cBu komut sadece oyuncular tarafından kullanılabilir!");
+            sender.sendMessage("§cOnly players!");
             return true;
         }
 
         Player player = (Player) sender;
 
-        if (args.length == 0) {
-            player.sendMessage("§cKullanım: /islandupgrade <border|member|piston|reload>");
-            return true;
-        }
-
-        // Admin komutu - reload
-        if (args[0].equalsIgnoreCase("reload")) {
+        // Reload komutu
+        if (args.length > 0 && args[0].equalsIgnoreCase("reload")) {
             if (!player.hasPermission("islandupgrade.admin")) {
                 player.sendMessage(plugin.getMessage("no-permission"));
                 return true;
             }
             plugin.reloadConfig();
-            plugin.saveData();
+            plugin.getDatabase().reloadCache();
             player.sendMessage(plugin.getMessage("reload-success"));
             return true;
         }
 
+        // Info komutu
+        if (args.length > 0 && args[0].equalsIgnoreCase("info")) {
+            player.sendMessage("§6=== Island Upgrade v2.0 ===");
+            player.sendMessage("§7Database: §eSQLite");
+            player.sendMessage("§7Cached islands: §e" + plugin.getDatabase().getCacheSize());
+            return true;
+        }
+
+        // Menü aç
+        if (args.length == 0) {
+            Bukkit.dispatchCommand(player, "dm open IslandUpgrade");
+            return true;
+        }
+
         // Ada kontrolü
-        IslandsManager islandsManager = plugin.getBentoBox().getIslandsManager();
-        Island island = islandsManager.getIsland(player.getWorld(), player.getUniqueId());
+        IslandsManager manager = plugin.getBentoBox().getIslandsManager();
+        Island island = manager.getIsland(player.getWorld(), player.getUniqueId());
 
         if (island == null) {
             player.sendMessage(plugin.getMessage("no-island"));
             return true;
         }
 
-        // Sadece ada sahibi yükseltme yapabilir
         if (!island.getOwner().equals(player.getUniqueId())) {
             player.sendMessage(plugin.getMessage("not-owner"));
             return true;
         }
 
-        String islandUUID = island.getUniqueId();
-        IslandUpgradeData upgradeData = plugin.getUpgradeData(islandUUID);
+        String islandId = island.getUniqueId();
+        UpgradeData data = plugin.getDatabase().getData(islandId);
 
         switch (args[0].toLowerCase()) {
             case "border":
-                upgradeBorder(player, island, upgradeData);
+                upgradeBorder(player, island, data, islandId);
                 break;
             case "member":
-                upgradeMember(player, island, upgradeData);
+                upgradeMember(player, island, data, islandId);
                 break;
             case "piston":
-                upgradePiston(player, island, upgradeData);
-                break;
-            case "testmember":
-                testMemberPermissions(player);
+                upgradePiston(player, data, islandId);
                 break;
             default:
-                player.sendMessage("§cGeçersiz yükseltme türü! Kullanım: border, member, piston");
+                player.sendMessage("§cKullanım: /iu <border|member|piston>");
                 break;
         }
 
         return true;
     }
 
-    private void upgradeBorder(Player player, Island island, IslandUpgradeData upgradeData) {
-        int currentLevel = upgradeData.getBorderLevel();
-        int nextLevel = currentLevel + 1;
+    private void upgradeBorder(Player player, Island island, UpgradeData data, String islandId) {
+        int current = data.getBorderLevel();
+        int next = current + 1;
 
-        ConfigurationSection borderConfig = plugin.getConfig().getConfigurationSection("border.levels." + nextLevel);
-        
-        if (borderConfig == null) {
+        ConfigurationSection config = plugin.getConfig().getConfigurationSection("border.levels." + next);
+        if (config == null) {
             player.sendMessage(plugin.getMessage("max-level"));
             return;
         }
 
-        double cost = borderConfig.getDouble("cost");
-        int newSize = borderConfig.getInt("size");
+        double cost = config.getDouble("cost");
+        int newSize = config.getInt("size");
 
-        // Para kontrolü
         if (plugin.getEconomy().getBalance(player) < cost) {
             player.sendMessage(plugin.getMessage("insufficient-funds").replace("{cost}", String.valueOf(cost)));
             return;
         }
 
-        // Parayı çek
         plugin.getEconomy().withdrawPlayer(player, cost);
-
-        // Ada sınırını güncelle
-        island.setProtectionRange(newSize / 2); // BentoBox yarıçap kullanır
-
-        // Seviyeyi kaydet
-        upgradeData.setBorderLevel(nextLevel);
-        plugin.setUpgradeData(island.getUniqueId(), upgradeData);
-
-        player.sendMessage(plugin.getMessage("upgrade-success")
-                .replace("{level}", String.valueOf(nextLevel))
-                .replace("&", "§"));
-        player.sendMessage("§aYeni ada sınırı: §e" + newSize + "x" + newSize);
+        island.setProtectionRange(newSize / 2);
         
-        // Menüyü yenile
+        data.setBorderLevel(next);
+        plugin.getDatabase().saveData(islandId, data);
+
+        player.sendMessage(plugin.getMessage("upgrade-success").replace("{level}", String.valueOf(next)));
+        player.sendMessage("§7Ada sınırı: §e" + newSize + "x" + newSize);
+        
         refreshMenu(player);
     }
 
-    private void upgradeMember(Player player, Island island, IslandUpgradeData upgradeData) {
-        int currentLevel = upgradeData.getMemberLevel();
-        int nextLevel = currentLevel + 1;
+    private void upgradeMember(Player player, Island island, UpgradeData data, String islandId) {
+        int current = data.getMemberLevel();
+        int next = current + 1;
 
-        ConfigurationSection memberConfig = plugin.getConfig().getConfigurationSection("member.levels." + nextLevel);
-        
-        if (memberConfig == null) {
+        ConfigurationSection config = plugin.getConfig().getConfigurationSection("member.levels." + next);
+        if (config == null) {
             player.sendMessage(plugin.getMessage("max-level"));
             return;
         }
 
-        double cost = memberConfig.getDouble("cost");
-        int newLimit = memberConfig.getInt("limit");
+        double cost = config.getDouble("cost");
+        int newLimit = config.getInt("limit");
 
-        // Para kontrolü
         if (plugin.getEconomy().getBalance(player) < cost) {
             player.sendMessage(plugin.getMessage("insufficient-funds").replace("{cost}", String.valueOf(cost)));
             return;
         }
 
-        // Parayı çek
         plugin.getEconomy().withdrawPlayer(player, cost);
-
-        // Eski limiti kaldır
-        if (currentLevel > 1) {
-            ConfigurationSection oldConfig = plugin.getConfig().getConfigurationSection("member.levels." + currentLevel);
+        
+        // Eski izni kaldır
+        if (current > 1) {
+            ConfigurationSection oldConfig = plugin.getConfig().getConfigurationSection("member.levels." + current);
             if (oldConfig != null) {
                 int oldLimit = oldConfig.getInt("limit");
-                String oldPermission = "bskyblock.team.maxsize." + oldLimit;
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), 
-                    "lp user " + player.getName() + " permission unset " + oldPermission);
+                    "lp user " + player.getName() + " permission unset bskyblock.team.maxsize." + oldLimit);
             }
         }
-
-        // Yeni limiti ekle
-        String newPermission = "bskyblock.team.maxsize." + newLimit;
-        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), 
-            "lp user " + player.getName() + " permission set " + newPermission + " true");
-
-        // Seviyeyi kaydet
-        upgradeData.setMemberLevel(nextLevel);
-        plugin.setUpgradeData(island.getUniqueId(), upgradeData);
-
-        player.sendMessage(plugin.getMessage("upgrade-success")
-                .replace("{level}", String.valueOf(nextLevel))
-                .replace("&", "§"));
-        player.sendMessage("§aYeni üye limiti: §e" + newLimit + " oyuncu");
-        player.sendMessage("§7İzin eklendi: §e" + newPermission);
         
-        // Menüyü yenile
+        // Yeni izni ekle
+        Bukkit.dispatchCommand(Bukkit.getConsoleSender(), 
+            "lp user " + player.getName() + " permission set bskyblock.team.maxsize." + newLimit + " true");
+        
+        data.setMemberLevel(next);
+        plugin.getDatabase().saveData(islandId, data);
+
+        player.sendMessage(plugin.getMessage("upgrade-success").replace("{level}", String.valueOf(next)));
+        player.sendMessage("§7Üye limiti: §e" + newLimit + " oyuncu");
+        
         refreshMenu(player);
     }
 
-    private void upgradePiston(Player player, Island island, IslandUpgradeData upgradeData) {
-        int currentLevel = upgradeData.getPistonLevel();
-        int nextLevel = currentLevel + 1;
+    private void upgradePiston(Player player, UpgradeData data, String islandId) {
+        int current = data.getPistonLevel();
+        int next = current + 1;
 
-        ConfigurationSection pistonConfig = plugin.getConfig().getConfigurationSection("piston.levels." + nextLevel);
-        
-        if (pistonConfig == null) {
+        ConfigurationSection config = plugin.getConfig().getConfigurationSection("piston.levels." + next);
+        if (config == null) {
             player.sendMessage(plugin.getMessage("max-level"));
             return;
         }
 
-        double cost = pistonConfig.getDouble("cost");
-        int newLimit = pistonConfig.getInt("limit");
+        double cost = config.getDouble("cost");
+        int newLimit = config.getInt("limit");
 
-        // Para kontrolü
         if (plugin.getEconomy().getBalance(player) < cost) {
             player.sendMessage(plugin.getMessage("insufficient-funds").replace("{cost}", String.valueOf(cost)));
             return;
         }
 
-        // Parayı çek
         plugin.getEconomy().withdrawPlayer(player, cost);
-
-        // Eski limiti kaldır
-        if (currentLevel > 1) {
-            ConfigurationSection oldConfig = plugin.getConfig().getConfigurationSection("piston.levels." + currentLevel);
+        
+        // Eski izni kaldır
+        if (current > 1) {
+            ConfigurationSection oldConfig = plugin.getConfig().getConfigurationSection("piston.levels." + current);
             if (oldConfig != null) {
                 int oldLimit = oldConfig.getInt("limit");
-                String oldPermission = "bskyblock.island.limit.PISTON." + oldLimit;
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), 
-                    "lp user " + player.getName() + " permission unset " + oldPermission);
-                
-                // Sticky piston için de
-                String oldPermission2 = "bskyblock.island.limit.STICKY_PISTON." + oldLimit;
+                    "lp user " + player.getName() + " permission unset bskyblock.island.limit.PISTON." + oldLimit);
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), 
-                    "lp user " + player.getName() + " permission unset " + oldPermission2);
+                    "lp user " + player.getName() + " permission unset bskyblock.island.limit.STICKY_PISTON." + oldLimit);
             }
         }
-
-        // Yeni limiti ekle
-        String newPermission = "bskyblock.island.limit.PISTON." + newLimit;
-        String newPermission2 = "bskyblock.island.limit.STICKY_PISTON." + newLimit;
         
+        // Yeni izni ekle
         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), 
-            "lp user " + player.getName() + " permission set " + newPermission + " true");
+            "lp user " + player.getName() + " permission set bskyblock.island.limit.PISTON." + newLimit + " true");
         Bukkit.dispatchCommand(Bukkit.getConsoleSender(), 
-            "lp user " + player.getName() + " permission set " + newPermission2 + " true");
-
-        // Seviyeyi kaydet
-        upgradeData.setPistonLevel(nextLevel);
-        plugin.setUpgradeData(island.getUniqueId(), upgradeData);
-
-        player.sendMessage(plugin.getMessage("upgrade-success")
-                .replace("{level}", String.valueOf(nextLevel))
-                .replace("&", "§"));
-        player.sendMessage("§aYeni piston limiti: §e" + newLimit + " piston");
+            "lp user " + player.getName() + " permission set bskyblock.island.limit.STICKY_PISTON." + newLimit + " true");
         
-        // Menüyü yenile
+        data.setPistonLevel(next);
+        plugin.getDatabase().saveData(islandId, data);
+
+        player.sendMessage(plugin.getMessage("upgrade-success").replace("{level}", String.valueOf(next)));
+        player.sendMessage("§7Piston limiti: §e" + newLimit);
+        
         refreshMenu(player);
     }
 
     private void refreshMenu(Player player) {
-        // Config'den ayarları oku
-        boolean autoRefresh = plugin.getConfig().getBoolean("menu.auto-refresh", true);
-        int delay = plugin.getConfig().getInt("menu.refresh-delay", 5);
+        // Menüyü kapat
+        Bukkit.getScheduler().runTask(plugin, () -> player.closeInventory());
         
-        if (autoRefresh) {
-            Bukkit.getScheduler().runTaskLater(plugin, () -> {
-                Bukkit.dispatchCommand(player, "yukseltme");
-            }, delay);
-        }
-    }
-    
-    private void testMemberPermissions(Player player) {
-        player.sendMessage("§6=== Üye Limiti İzin Testi ===");
-        player.sendMessage("");
-        
-        // Mevcut izinleri göster
-        player.sendMessage("§eMevcut üye limiti izinleriniz:");
-        boolean foundAny = false;
-        
-        for (int i = 3; i <= 15; i++) {
-            String perm = "bskyblock.team.maxsize." + i;
-            
-            if (player.hasPermission(perm)) {
-                player.sendMessage("§a✓ " + perm + " §7(Aktif limit: " + i + " oyuncu)");
-                foundAny = true;
-            }
-        }
-        
-        if (!foundAny) {
-            player.sendMessage("§cHiçbir üye limiti izni bulunamadı!");
-            player.sendMessage("§7Varsayılan limit: 4 oyuncu");
-        }
-        
-        player.sendMessage("");
-        player.sendMessage("§7Üye eklemek için: §e/is team invite <oyuncu>");
-        player.sendMessage("§7Ada bilgisi: §e/is team");
-        player.sendMessage("§7Ada üyeleri: §e/is team");
+        // 10 tick (0.5 saniye) sonra tekrar aç
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            Bukkit.dispatchCommand(player, "dm open IslandUpgrade");
+        }, 10L);
     }
 }

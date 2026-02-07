@@ -6,7 +6,7 @@
 
     <groupId>com.skyblock</groupId>
     <artifactId>IslandUpgrade</artifactId>
-    <version>1.0.0</version>
+    <version>2.0.0</version>
     <packaging>jar</packaging>
 
     <name>IslandUpgrade</name>
@@ -37,6 +37,14 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <configuration>
+                            <relocations>
+                                <relocation>
+                                    <pattern>org.sqlite</pattern>
+                                    <shadedPattern>com.skyblock.upgrade.libs.sqlite</shadedPattern>
+                                </relocation>
+                            </relocations>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -85,14 +93,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- BentoBox BSkyBlock -->
-        <dependency>
-            <groupId>world.bentobox</groupId>
-            <artifactId>bskyblock</artifactId>
-            <version>1.18.0</version>
-            <scope>provided</scope>
-        </dependency>
-
         <!-- Vault -->
         <dependency>
             <groupId>com.github.MilkBowl</groupId>
@@ -107,6 +107,13 @@
             <artifactId>placeholderapi</artifactId>
             <version>2.11.5</version>
             <scope>provided</scope>
+        </dependency>
+
+        <!-- SQLite JDBC -->
+        <dependency>
+            <groupId>org.xerial</groupId>
+            <artifactId>sqlite-jdbc</artifactId>
+            <version>3.44.1.0</version>
         </dependency>
     </dependencies>
 </project>

@@ -1,22 +1,22 @@
 name: IslandUpgrade
-version: 1.0.0
+version: 2.0.0
 main: com.skyblock.upgrade.IslandUpgradePlugin
 api-version: 1.19
-author: YourName
-description: BentoBox BSkyBlock upgrade system
+author: SkyBlock Team
+description: SQLite-based BentoBox BSkyBlock upgrade system
 depend: [BentoBox, Vault, PlaceholderAPI]
-softdepend: [DeluxeMenus, GeneratorUpgrade]
+softdepend: [DeluxeMenus]
 
 commands:
   islandupgrade:
     description: Manage island upgrades
-    usage: /islandupgrade <border|member|piston|reload>
-    aliases: [iu, adayukseltme]
+    usage: /islandupgrade <border|member|piston|reload|info>
+    aliases: [iu, adayukseltme, yukseltme]
 
 permissions:
   islandupgrade.admin:
-    description: Admin permissions for island upgrades
+    description: Admin permissions
     default: op
   islandupgrade.use:
-    description: Use island upgrades
+    description: Use upgrades
     default: true

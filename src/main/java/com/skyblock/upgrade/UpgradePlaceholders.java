@@ -8,7 +8,6 @@ import world.bentobox.bentobox.database.objects.Island;
 import world.bentobox.bentobox.managers.IslandsManager;
 
 import java.text.DecimalFormat;
-import java.util.Optional;
 
 public class UpgradePlaceholders extends PlaceholderExpansion {
 
@@ -22,7 +21,7 @@ public class UpgradePlaceholders extends PlaceholderExpansion {
     @Override
     @NotNull
     public String getAuthor() {
-        return "YourName";
+        return "SkyBlock";
     }
 
     @Override
@@ -34,7 +33,7 @@ public class UpgradePlaceholders extends PlaceholderExpansion {
     @Override
     @NotNull
     public String getVersion() {
-        return "1.0.0";
+        return "2.0.0";
     }
 
     @Override
@@ -48,148 +47,89 @@ public class UpgradePlaceholders extends PlaceholderExpansion {
             return "";
         }
 
-        // Ada kontrolü
-        IslandsManager islandsManager = plugin.getBentoBox().getIslandsManager();
-        Island island = islandsManager.getIsland(player.getWorld(), player.getUniqueId());
+        IslandsManager manager = plugin.getBentoBox().getIslandsManager();
+        Island island = manager.getIsland(player.getWorld(), player.getUniqueId());
 
         if (island == null) {
-            return "Ada Yok";
+            return "N/A";
         }
 
-        String islandUUID = island.getUniqueId();
-        IslandUpgradeData upgradeData = plugin.getUpgradeData(islandUUID);
+        // Cache'den direkt al - her zaman güncel
+        UpgradeData data = plugin.getDatabase().getData(island.getUniqueId());
 
-        // Border placeholders
-        if (identifier.startsWith("border_")) {
-            return handleBorderPlaceholder(player, upgradeData, identifier);
+        // Border
+        if (identifier.equals("border_level")) {
+            return String.valueOf(data.getBorderLevel());
+        }
+        if (identifier.equals("border_size")) {
+            ConfigurationSection config = plugin.getConfig().getConfigurationSection("border.levels." + data.getBorderLevel());
+            return config != null ? String.valueOf(config.getInt("size")) : "50";
+        }
+        if (identifier.equals("border_next_size")) {
+            ConfigurationSection config = plugin.getConfig().getConfigurationSection("border.levels." + (data.getBorderLevel() + 1));
+            return config != null ? String.valueOf(config.getInt("size")) : "MAX";
+        }
+        if (identifier.equals("border_cost")) {
+            ConfigurationSection config = plugin.getConfig().getConfigurationSection("border.levels." + (data.getBorderLevel() + 1));
+            return config != null ? formatter.format(config.getDouble("cost")) : "0";
+        }
+        if (identifier.equals("border_status")) {
+            return getStatus(player, "border", data.getBorderLevel());
         }
 
-        // Member placeholders
-        if (identifier.startsWith("member_")) {
-            return handleMemberPlaceholder(player, upgradeData, identifier);
+        // Member
+        if (identifier.equals("member_level")) {
+            return String.valueOf(data.getMemberLevel());
+        }
+        if (identifier.equals("member_limit")) {
+            ConfigurationSection config = plugin.getConfig().getConfigurationSection("member.levels." + data.getMemberLevel());
+            return config != null ? String.valueOf(config.getInt("limit")) : "4";
+        }
+        if (identifier.equals("member_next_limit")) {
+            ConfigurationSection config = plugin.getConfig().getConfigurationSection("member.levels." + (data.getMemberLevel() + 1));
+            return config != null ? String.valueOf(config.getInt("limit")) : "MAX";
+        }
+        if (identifier.equals("member_cost")) {
+            ConfigurationSection config = plugin.getConfig().getConfigurationSection("member.levels." + (data.getMemberLevel() + 1));
+            return config != null ? formatter.format(config.getDouble("cost")) : "0";
+        }
+        if (identifier.equals("member_status")) {
+            return getStatus(player, "member", data.getMemberLevel());
         }
 
-        // Piston placeholders
-        if (identifier.startsWith("piston_")) {
-            return handlePistonPlaceholder(player, upgradeData, identifier);
+        // Piston
+        if (identifier.equals("piston_level")) {
+            return String.valueOf(data.getPistonLevel());
+        }
+        if (identifier.equals("piston_limit")) {
+            ConfigurationSection config = plugin.getConfig().getConfigurationSection("piston.levels." + data.getPistonLevel());
+            return config != null ? String.valueOf(config.getInt("limit")) : "250";
+        }
+        if (identifier.equals("piston_next_limit")) {
+            ConfigurationSection config = plugin.getConfig().getConfigurationSection("piston.levels." + (data.getPistonLevel() + 1));
+            return config != null ? String.valueOf(config.getInt("limit")) : "MAX";
+        }
+        if (identifier.equals("piston_cost")) {
+            ConfigurationSection config = plugin.getConfig().getConfigurationSection("piston.levels." + (data.getPistonLevel() + 1));
+            return config != null ? formatter.format(config.getDouble("cost")) : "0";
+        }
+        if (identifier.equals("piston_status")) {
+            return getStatus(player, "piston", data.getPistonLevel());
         }
 
         return null;
     }
 
-    private String handleBorderPlaceholder(Player player, IslandUpgradeData upgradeData, String identifier) {
-        int currentLevel = upgradeData.getBorderLevel();
-        ConfigurationSection currentConfig = plugin.getConfig().getConfigurationSection("border.levels." + currentLevel);
-
-        switch (identifier) {
-            case "border_level":
-                return String.valueOf(currentLevel);
-
-            case "border_size":
-                return currentConfig != null ? String.valueOf(currentConfig.getInt("size")) : "50";
-
-            case "border_next_size":
-                ConfigurationSection nextConfig = plugin.getConfig().getConfigurationSection("border.levels." + (currentLevel + 1));
-                if (nextConfig != null) {
-                    return String.valueOf(nextConfig.getInt("size"));
-                }
-                return "MAX";
-
-            case "border_cost":
-                ConfigurationSection nextBorderConfig = plugin.getConfig().getConfigurationSection("border.levels." + (currentLevel + 1));
-                if (nextBorderConfig != null) {
-                    return formatter.format(nextBorderConfig.getDouble("cost"));
-                }
-                return "0";
-
-            case "border_status":
-                return getUpgradeStatus(player, "border", currentLevel);
-
-            default:
-                return null;
+    private String getStatus(Player player, String type, int level) {
+        ConfigurationSection next = plugin.getConfig().getConfigurationSection(type + ".levels." + (level + 1));
+        
+        if (next == null) {
+            return "§a§l✓ MAX";
         }
-    }
-
-    private String handleMemberPlaceholder(Player player, IslandUpgradeData upgradeData, String identifier) {
-        int currentLevel = upgradeData.getMemberLevel();
-        ConfigurationSection currentConfig = plugin.getConfig().getConfigurationSection("member.levels." + currentLevel);
-
-        switch (identifier) {
-            case "member_level":
-                return String.valueOf(currentLevel);
-
-            case "member_limit":
-                return currentConfig != null ? String.valueOf(currentConfig.getInt("limit")) : "3";
-
-            case "member_next_limit":
-                ConfigurationSection nextConfig = plugin.getConfig().getConfigurationSection("member.levels." + (currentLevel + 1));
-                if (nextConfig != null) {
-                    return String.valueOf(nextConfig.getInt("limit"));
-                }
-                return "MAX";
-
-            case "member_cost":
-                ConfigurationSection nextMemberConfig = plugin.getConfig().getConfigurationSection("member.levels." + (currentLevel + 1));
-                if (nextMemberConfig != null) {
-                    return formatter.format(nextMemberConfig.getDouble("cost"));
-                }
-                return "0";
-
-            case "member_status":
-                return getUpgradeStatus(player, "member", currentLevel);
-
-            default:
-                return null;
-        }
-    }
-
-    private String handlePistonPlaceholder(Player player, IslandUpgradeData upgradeData, String identifier) {
-        int currentLevel = upgradeData.getPistonLevel();
-        ConfigurationSection currentConfig = plugin.getConfig().getConfigurationSection("piston.levels." + currentLevel);
-
-        switch (identifier) {
-            case "piston_level":
-                return String.valueOf(currentLevel);
-
-            case "piston_limit":
-                return currentConfig != null ? String.valueOf(currentConfig.getInt("limit")) : "250";
-
-            case "piston_next_limit":
-                ConfigurationSection nextConfig = plugin.getConfig().getConfigurationSection("piston.levels." + (currentLevel + 1));
-                if (nextConfig != null) {
-                    return String.valueOf(nextConfig.getInt("limit"));
-                }
-                return "MAX";
-
-            case "piston_cost":
-                ConfigurationSection nextPistonConfig = plugin.getConfig().getConfigurationSection("piston.levels." + (currentLevel + 1));
-                if (nextPistonConfig != null) {
-                    return formatter.format(nextPistonConfig.getDouble("cost"));
-                }
-                return "0";
-
-            case "piston_status":
-                return getUpgradeStatus(player, "piston", currentLevel);
-
-            default:
-                return null;
-        }
-    }
-
-    private String getUpgradeStatus(Player player, String upgradeType, int currentLevel) {
-        ConfigurationSection nextConfig = plugin.getConfig().getConfigurationSection(upgradeType + ".levels." + (currentLevel + 1));
-
-        if (nextConfig == null) {
-            return plugin.getConfig().getString("placeholders.max-level-text", "§a§l✓ Maksimum Seviye").replace("&", "§");
-        }
-
-        double cost = nextConfig.getDouble("cost");
+        
+        double cost = next.getDouble("cost");
         double balance = plugin.getEconomy().getBalance(player);
-
-        if (balance >= cost) {
-            return plugin.getConfig().getString("placeholders.can-upgrade-text", "§e§l▸ Yükseltmek için tıkla!").replace("&", "§");
-        } else {
-            return plugin.getConfig().getString("placeholders.cant-upgrade-text", "§c§l✗ Yetersiz bakiye!").replace("&", "§");
-        }
+        
+        return balance >= cost ? "§e§l▸ Tıkla!" : "§c§l✗ Yetersiz";
     }
 }
