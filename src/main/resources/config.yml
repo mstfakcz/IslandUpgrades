@@ -1,0 +1,106 @@
+# Island Upgrade System Configuration
+# Bu dosyayı düzenleyerek tüm yükseltme ayarlarını değiştirebilirsiniz
+
+# Ada Sınırı Yükseltmeleri
+border:
+  enabled: true
+  levels:
+    1:
+      size: 50
+      cost: 0
+    2:
+      size: 100
+      cost: 75000
+    3:
+      size: 150
+      cost: 150000
+    4:
+      size: 200
+      cost: 300000
+
+# Üye Sayısı Yükseltmeleri
+member:
+  enabled: true
+  base-limit: 3
+  levels:
+    1:
+      limit: 3
+      cost: 0
+    2:
+      limit: 5
+      cost: 10000
+    3:
+      limit: 7
+      cost: 20000
+    4:
+      limit: 9
+      cost: 40000
+    5:
+      limit: 11
+      cost: 80000
+    6:
+      limit: 13
+      cost: 160000
+
+# Piston Limiti Yükseltmeleri
+piston:
+  enabled: true
+  levels:
+    1:
+      limit: 250
+      cost: 0
+    2:
+      limit: 500
+      cost: 10000
+    3:
+      limit: 750
+      cost: 20000
+    4:
+      limit: 1000
+      cost: 40000
+    5:
+      limit: 1500
+      cost: 80000
+    6:
+      limit: 2000
+      cost: 120000
+    7:
+      limit: 3000
+      cost: 200000
+    8:
+      limit: 4000
+      cost: 300000
+    9:
+      limit: 5000
+      cost: 500000
+    10:
+      limit: 10000
+      cost: 1000000
+
+# Mesajlar
+messages:
+  prefix: '&8[&6Ada Yükseltme&8]&r '
+  no-island: '&cBir adaya sahip değilsiniz!'
+  no-permission: '&cBunu yapmak için yetkiniz yok!'
+  not-owner: '&cBunu sadece ada sahibi yapabilir!'
+  insufficient-funds: '&cYetersiz bakiye! Gereken: &6{cost} ₺'
+  max-level: '&cBu yükseltme zaten maksimum seviyede!'
+  upgrade-success: '&aYükseltme başarılı! &7Yeni seviye: &b{level}'
+  reload-success: '&aYapılandırma başarıyla yeniden yüklendi!'
+
+# Menü ayarları
+menu:
+  auto-refresh: true      # Yükseltme sonrası menüyü otomatik yenile
+  refresh-delay: 10       # Yenileme gecikmesi (tick, 20 tick = 1 saniye)
+
+# Menü ayarları
+menu:
+  auto-refresh: true  # Yükseltme sonrası menüyü otomatik yenile
+  refresh-delay: 5    # Yenileme gecikmesi (tick cinsinden, 20 tick = 1 saniye)
+  
+# Placeholder ayarları
+placeholders:
+  max-level-text: '&a&l✓ Maksimum Seviye'
+  can-upgrade-text: '&e&l▸ Yükseltmek için tıkla!'
+  cant-upgrade-text: '&c&l✗ Yetersiz bakiye!'
+  upgrade-format: '&7{current} &8→ &a{next}'

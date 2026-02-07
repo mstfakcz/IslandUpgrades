@@ -1,0 +1,55 @@
+# BentoBox Limits Configuration
+# Bu dosyayı BentoBox/addons/Limits/config.yml dosyasına EKLEYIN (üzerine yazmayın!)
+
+# ÖNEMLI: BentoBox Limits addon'u kurulu olmalıdır!
+# İzin formatı: bskyblock.island.limit.BLOCK_TYPE.LIMIT_AMOUNT
+
+# Piston limitleri - Yükseltme seviyelerine göre
+# Her oyuncuya başlangıçta 250 piston limiti vermek için:
+# lp group default permission set bskyblock.island.limit.PISTON.250 true
+# lp group default permission set bskyblock.island.limit.STICKY_PISTON.250 true
+
+# NOT: Oyuncu yükseltme yaptığında eklenti otomatik olarak
+# eski izni kaldırıp yeni izni ekleyecektir.
+
+# Limits addon config.yml dosyanıza şunu ekleyin:
+
+blocklimits:
+  PISTON: 250
+  STICKY_PISTON: 250
+
+# İzin tabanlı limitler için groups.yml dosyanıza:
+# (BentoBox/addons/Limits/groups.yml)
+
+# Örnek yapılandırma:
+# limits:
+#   PISTON:
+#     limit: 250
+#     offset: 0
+#     permission: bskyblock.island.limit.PISTON.250
+#   STICKY_PISTON:
+#     limit: 250
+#     offset: 0
+#     permission: bskyblock.island.limit.STICKY_PISTON.250
+
+# Yükseltme seviyeleri için gerekli izinler:
+# Seviye 1 (Varsayılan): bskyblock.island.limit.PISTON.250
+# Seviye 2: bskyblock.island.limit.PISTON.500
+# Seviye 3: bskyblock.island.limit.PISTON.750
+# Seviye 4: bskyblock.island.limit.PISTON.1000
+# Seviye 5: bskyblock.island.limit.PISTON.1500
+# Seviye 6: bskyblock.island.limit.PISTON.2000
+# Seviye 7: bskyblock.island.limit.PISTON.3000
+# Seviye 8: bskyblock.island.limit.PISTON.4000
+# Seviye 9: bskyblock.island.limit.PISTON.5000
+# Seviye 10: bskyblock.island.limit.PISTON.10000
+
+# KURULUM ADIMLARI:
+# 1. BentoBox Limits addon'unu kurun
+# 2. Sunucuyu başlatın
+# 3. BentoBox/addons/Limits/config.yml dosyasını açın
+# 4. blocklimits bölümüne PISTON ve STICKY_PISTON ekleyin
+# 5. Tüm oyunculara başlangıç iznini verin:
+#    lp group default permission set bskyblock.island.limit.PISTON.250 true
+#    lp group default permission set bskyblock.island.limit.STICKY_PISTON.250 true
+# 6. Sunucuyu yeniden başlatın

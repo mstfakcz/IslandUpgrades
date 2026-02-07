@@ -1,0 +1,119 @@
+menu_title: '&6&lAda Yukseltmeleri'
+open_command:
+  - yukseltme
+  - adayukseltme
+size: 27
+
+items:
+  filler:
+    material: GRAY_STAINED_GLASS_PANE
+    display_name: ' '
+    slots:
+      - 0
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+      - 8
+      - 9
+      - 10
+      - 13
+      - 16
+      - 17
+      - 18
+      - 19
+      - 20
+      - 21
+      - 23
+      - 24
+      - 25
+      - 26
+
+  ada_siniri:
+    material: GRASS_BLOCK
+    slot: 11
+    display_name: '&a&lAda Siniri Yukseltme'
+    lore:
+      - ''
+      - '&7Mevcut Sinir: &e%islandupgrade_border_size%x%islandupgrade_border_size%'
+      - '&7Seviye: &b%islandupgrade_border_level%&7/&b4'
+      - ''
+      - '&7Sonraki Seviye: &e%islandupgrade_border_next_size%x%islandupgrade_border_next_size%'
+      - '&7Fiyat: &6%islandupgrade_border_cost% TL'
+      - ''
+      - '%islandupgrade_border_status%'
+      - ''
+    left_click_commands:
+      - '[player] islandupgrade border'
+    right_click_commands:
+      - '[player] islandupgrade border'
+
+  jenerator:
+    material: COBBLESTONE
+    slot: 12
+    display_name: '&e&lJenerator Yukseltme'
+    lore:
+      - ''
+      - '&7Jenerator ozelleştirmelerinizi'
+      - '&7yukseltin ve daha degerli'
+      - '&7bloklar uretin!'
+      - ''
+      - '&eJenerator menusunu acmak icin tikla'
+      - ''
+    left_click_commands:
+      - '[player] generator'
+    right_click_commands:
+      - '[player] generator'
+
+  uye_sayisi:
+    material: PLAYER_HEAD
+    slot: 14
+    display_name: '&b&lUye Sayisi Yukseltme'
+    lore:
+      - ''
+      - '&7Mevcut Limit: &e%islandupgrade_member_limit% oyuncu'
+      - '&7Seviye: &b%islandupgrade_member_level%&7/&b6'
+      - ''
+      - '&7Sonraki Seviye: &e%islandupgrade_member_next_limit% oyuncu'
+      - '&7Fiyat: &6%islandupgrade_member_cost% TL'
+      - ''
+      - '%islandupgrade_member_status%'
+      - ''
+    left_click_commands:
+      - '[player] islandupgrade member'
+    right_click_commands:
+      - '[player] islandupgrade member'
+
+  piston_limit:
+    material: PISTON
+    slot: 15
+    display_name: '&c&lPiston Limiti Yukseltme'
+    lore:
+      - ''
+      - '&7Mevcut Limit: &e%islandupgrade_piston_limit% piston'
+      - '&7Seviye: &b%islandupgrade_piston_level%&7/&b10'
+      - ''
+      - '&7Sonraki Seviye: &e%islandupgrade_piston_next_limit% piston'
+      - '&7Fiyat: &6%islandupgrade_piston_cost% TL'
+      - ''
+      - '%islandupgrade_piston_status%'
+      - ''
+    left_click_commands:
+      - '[player] islandupgrade piston'
+    right_click_commands:
+      - '[player] islandupgrade piston'
+
+  bilgi:
+    material: BOOK
+    slot: 22
+    display_name: '&6&lBilgi'
+    lore:
+      - ''
+      - '&7Adanizi yukseltmek icin'
+      - '&7yukaridaki ogelere tiklayin!'
+      - ''
+      - '&7Bakiye: &6%vault_eco_balance_formatted% TL'
+      - ''
